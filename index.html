@@ -1,0 +1,42 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <title>View Animation</title>
+    <link rel="stylesheet" href="https://openlayers.org/en/v5.3.0/css/ol.css" type="text/css">
+    <!-- The line below is only needed for old environments like Internet Explorer and Android 4.x -->
+    <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL"></script>
+
+  </head>
+  <body>
+    <div id="map" class="map"></div>
+    <button id="rotate-left" title="Rotate clockwise">↻</button>
+    <button id="rotate-right" title="Rotate counterclockwise">↺</button>
+    <button id="pan-to-london">Pan to London</button>
+    <button id="elastic-to-moscow">Elastic to Moscow</button>
+    <button id="bounce-to-istanbul">Bounce to Istanbul</button>
+    <button id="spin-to-rome">Spin to Rome</button>
+    <button id="fly-to-bern">Fly to Bern</button>
+    <button id="rotate-around-rome">Rotate around Rome</button>
+    <button id="tour">Take a tour</button>
+	
+		<script src="./index.js"></script>
+
+  </body>
+</html>
+<!-- <!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Using Parcel with OpenLayers</title>
+    <style>
+      #map {
+        width: 1500px;
+        height: 600px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script src="./index.js"></script>
+  </body>
+</html>-->
