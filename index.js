@@ -1,35 +1,59 @@
 import 'ol/ol.css';
+import {easeIn, easeOut} from 'ol/easing.js';
 import {Map, View} from 'ol';
 import TileLayer from 'ol/layer/Tile';
 import OSM from 'ol/source/OSM';
 import {fromLonLat} from 'ol/proj.js';
-     
+import BingMaps from 'ol/source/BingMaps.js';
+	
+	  var sincan = fromLonLat([32.586287, 39.948533])
 	  var london = fromLonLat([-0.12755, 51.507222]);
       var moscow = fromLonLat([37.6178, 55.7517]);
       var istanbul = fromLonLat([28.9744, 41.0128]);
       var rome = fromLonLat([12.5, 41.9]);
       var bern = fromLonLat([7.4458, 46.95]);
+	  var eryaman = fromLonLat([32.637287, 39.978533])
+	  
+	  var styles = [
+        'RoadOnDemand',
+        'AerialWithLabels',
+      ];
+	  var layersgroup = [];
+      var i, ii;
+      for (i = 0, ii = styles.length; i < ii; ++i) {
+        layersgroup.push(new TileLayer({
+          visible: false,
+          preload: Infinity,
+          source: new BingMaps({
+            key: 'Apdf50YSPHwkC6-0XbRdDNtEha4zlSN7QzedsTkjcFLTucYRZoT2kS764fzYrRzF',
+            imagerySet: styles[i]
+          })
+        }));
+      }
 
       var view = new View({
-        center: istanbul,
-        zoom: 6
+        center: sincan,
+        zoom: 15
       });
 
       var map = new Map({
         target: 'map',
-        layers: [
-          new TileLayer({
-            preload: 4,
-            source: new OSM()
-          })
-        ],
-        // Improve user experience by loading tiles while animating. Will make
-        // animations stutter on mobile or slow devices.
+        layers:layersgroup,
         loadTilesWhileAnimating: true,
+		loadTilesWhileInteracting: true,
         view: view
       });
-
-      // A bounce easing method (from https://github.com/DmitryBaranovskiy/raphael).
+	  
+	  var select = document.getElementById('layer-select');
+      function onChange() {
+        var style = select.value;
+        for (var i = 0, ii = layersgroup.length; i < ii; ++i) {
+          layersgroup[i].setVisible(styles[i] === style);
+        }
+      }
+      select.addEventListener('change', onChange);
+      onChange();
+	  
       function bounce(t) {
         var s = 7.5625;
         var p = 2.75;
@@ -53,7 +77,6 @@ import {fromLonLat} from 'ol/proj.js';
         return l;
       }
 
-      // An elastic easing method (from https://github.com/DmitryBaranovskiy/raphael).
       function elastic(t) {
         return Math.pow(2, -10 * t) * Math.sin((t - 0.075) * (2 * Math.PI) / 0.3) + 1;
       }
@@ -73,8 +96,10 @@ import {fromLonLat} from 'ol/proj.js';
           rotation: view.getRotation() - Math.PI / 2
         });
       });
+	  
 
-      onClick('rotate-around-rome', function() {
+
+     /* onClick('rotate-around-rome', function() {
         // Rotation animation takes the shortest arc, so animate in two parts
         var rotation = view.getRotation();
         view.animate({
@@ -86,32 +111,32 @@ import {fromLonLat} from 'ol/proj.js';
           anchor: rome,
           easing: easeOut
         });
-      });
+      });*/
 
-      onClick('pan-to-london', function() {
+      /*onClick('pan-to-london', function() {
         view.animate({
           center: london,
           duration: 2000
         });
-      });
+      });*/
 
-      onClick('elastic-to-moscow', function() {
+     /* onClick('elastic-to-moscow', function() {
         view.animate({
           center: moscow,
           duration: 2000,
           easing: elastic
         });
-      });
+      });*/
 
-      onClick('bounce-to-istanbul', function() {
+    /*  onClick('bounce-to-istanbul', function() {
         view.animate({
           center: istanbul,
           duration: 2000,
           easing: bounce
         });
-      });
+      });*/
 
-      onClick('spin-to-rome', function() {
+    /*  onClick('spin-to-rome', function() {
         // Rotation animation takes the shortest arc, so animate in two parts
         var center = view.getCenter();
         view.animate({
@@ -126,7 +151,7 @@ import {fromLonLat} from 'ol/proj.js';
           rotation: 2 * Math.PI,
           easing: easeOut
         });
-      });
+      });*/
 
       function flyTo(location, done) {
         var duration = 2000;
@@ -148,20 +173,47 @@ import {fromLonLat} from 'ol/proj.js';
           duration: duration
         }, callback);
         view.animate({
-          zoom: zoom - 1,
+          zoom: zoom - 3,
           duration: duration / 2
         }, {
-          zoom: zoom,
+          zoom: zoom ,
           duration: duration / 2
         }, callback);
       }
+	  
+	  //dropdown list event
+	  var city=document.getElementById('city-select');
+	  function cityChange() {
+		  var cityname=city.value;
+		  if(cityname=="eryaman"){
+			  alert(cityname);
+				onClick('fly-to-eryaman',function() {
+					flyTo(eryaman,function(){});
+				});
+		  }
+		  else if(cityname=="sincan") {
+			  alert(cityname);
+				onClick('sincan',function() {
+					flyTo(sincan,function(){});
+				});
+		  }
+	  }
+	  
+	  city.addEventListener('change', cityChange);
+      cityChange();
+	  
+	  
+	  
+	  onClick('fly-to-eryaman',function() {
+		  flyTo(eryaman,function(){});
+	  });
 
-      onClick('fly-to-bern', function() {
-        flyTo(bern, function() {});
-      });
+	  onClick('fly-to-sincan',function() {
+		  flyTo(sincan,function(){});
+	  });
 
       function tour() {
-        var locations = [london, bern, rome, moscow, istanbul];
+        var locations = [sincan, eryaman];
         var index = -1;
         function next(more) {
           if (more) {
