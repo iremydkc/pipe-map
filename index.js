@@ -6,13 +6,10 @@ import OSM from 'ol/source/OSM';
 import {fromLonLat} from 'ol/proj.js';
 import BingMaps from 'ol/source/BingMaps.js';
 	
-	  var sincan = fromLonLat([32.586287, 39.948533])
-	  var london = fromLonLat([-0.12755, 51.507222]);
-      var moscow = fromLonLat([37.6178, 55.7517]);
-      var istanbul = fromLonLat([28.9744, 41.0128]);
-      var rome = fromLonLat([12.5, 41.9]);
-      var bern = fromLonLat([7.4458, 46.95]);
-	  var eryaman = fromLonLat([32.637287, 39.978533])
+var points = {
+    "sincan": fromLonLat([32.586287, 39.948533]),
+    "eryaman": fromLonLat([32.637287, 39.978533])
+}
 	  
 	  var styles = [
         'RoadOnDemand',
@@ -32,7 +29,7 @@ import BingMaps from 'ol/source/BingMaps.js';
       }
 
       var view = new View({
-        center: sincan,
+        center: fromLonLat([32.586287, 39.948533]),
         zoom: 15
       });
 
@@ -183,7 +180,8 @@ import BingMaps from 'ol/source/BingMaps.js';
 	  
 	  //dropdown list event
 	  var city=document.getElementById('city-select');
-	  function cityChange() {
+	  
+	 /* function cityChange() {
 		  var cityname=city.value;
 		  if(cityname=="eryaman"){
 			  alert(cityname);
@@ -197,23 +195,23 @@ import BingMaps from 'ol/source/BingMaps.js';
 					flyTo(sincan,function(){});
 				});
 		  }
-	  }
+	  }*/
 	  
-	  city.addEventListener('change', cityChange);
-      cityChange();
-	  
-	  
+	  city.addEventListener('change',function(event){
+		  console.log(event.target.value);
+	  });
+	 
 	  
 	  onClick('fly-to-eryaman',function() {
-		  flyTo(eryaman,function(){});
+		  flyTo(points[event.target.value],window.alert("eryaman"));
 	  });
 
 	  onClick('fly-to-sincan',function() {
-		  flyTo(sincan,function(){});
+		  flyTo(points[event.target.value],window.alert ("sincan"));
 	  });
 
       function tour() {
-        var locations = [sincan, eryaman];
+	  var locations = [points[0], points[1]];
         var index = -1;
         function next(more) {
           if (more) {
