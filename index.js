@@ -1,10 +1,14 @@
 import 'ol/ol.css';
 import {easeIn, easeOut} from 'ol/easing.js';
 import {Map, View} from 'ol';
-import TileLayer from 'ol/layer/Tile';
+import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer.js';
 import OSM from 'ol/source/OSM';
 import {fromLonLat} from 'ol/proj.js';
 import BingMaps from 'ol/source/BingMaps.js';
+import VectorSource from 'ol/source/Vector.js';
+import GeoJSON from 'ol/format/GeoJSON.js';
+import {Fill, Style, Text} from 'ol/style.js';
+import {getCenter} from 'ol/extent.js';
 	
 var points = {
     "sincan": fromLonLat([32.586287, 39.948533]),
@@ -14,9 +18,20 @@ var points = {
 	  var styles = [
         'RoadOnDemand',
         'AerialWithLabels',
+		new Style({
+        text: new Text({
+          font: 'bold 11px "Open Sans", "Arial Unicode MS", "sans-serif"',
+          placement: 'line',
+          fill: new Fill({
+            color: 'white'
+          })
+        })
+      })
       ];
+	  
 	  var layersgroup = [];
       var i, ii;
+	  
       for (i = 0, ii = styles.length; i < ii; ++i) {
         layersgroup.push(new TileLayer({
           visible: false,
@@ -27,29 +42,44 @@ var points = {
           })
         }));
       }
-
-      var view = new View({
-        center: fromLonLat([32.586287, 39.948533]),
-        zoom: 15
-      });
-
-      var map = new Map({
-        target: 'map',
+	var viewExtent = [6672979, 2800990, 633851, 6913616];
+	var view = new View({
+		extent: viewExtent,
+		center:getCenter(viewExtent),
+		//center: fromLonLat([32.586287, 39.948533]),
+        zoom: 11.2,
+    });
+	layersgroup.push(new VectorLayer({
+        declutter: true,
+		source: new VectorSource({
+			format: new GeoJSON(),
+			url: 'data/geojson/vienna-streets.geojson'
+		}),
+		style: function(feature) {
+			style.getText().setText(feature.get('name'));
+        return style;
+		}
+    })
+	);
+		
+	var map = new Map({
+		target: 'map',
         layers:layersgroup,
         loadTilesWhileAnimating: true,
 		loadTilesWhileInteracting: true,
-        view: view
-      });
+        view: view,
+		
+    });
 	  
-	  var select = document.getElementById('layer-select');
-      function onChange() {
-        var style = select.value;
+	var select = document.getElementById('layer-select');
+    function onChange() {
+		var style = select.value;
         for (var i = 0, ii = layersgroup.length; i < ii; ++i) {
-          layersgroup[i].setVisible(styles[i] === style);
+			layersgroup[i].setVisible(styles[i] === style);
         }
-      }
-      select.addEventListener('change', onChange);
-      onChange();
+    }
+    select.addEventListener('change', onChange);
+    onChange();
 	  
       function bounce(t) {
         var s = 7.5625;
@@ -96,67 +126,15 @@ var points = {
 	  
 
 
-     /* onClick('rotate-around-rome', function() {
-        // Rotation animation takes the shortest arc, so animate in two parts
-        var rotation = view.getRotation();
-        view.animate({
-          rotation: rotation + Math.PI,
-          anchor: rome,
-          easing: easeIn
-        }, {
-          rotation: rotation + 2 * Math.PI,
-          anchor: rome,
-          easing: easeOut
-        });
-      });*/
-
-      /*onClick('pan-to-london', function() {
-        view.animate({
-          center: london,
-          duration: 2000
-        });
-      });*/
-
-     /* onClick('elastic-to-moscow', function() {
-        view.animate({
-          center: moscow,
-          duration: 2000,
-          easing: elastic
-        });
-      });*/
-
-    /*  onClick('bounce-to-istanbul', function() {
-        view.animate({
-          center: istanbul,
-          duration: 2000,
-          easing: bounce
-        });
-      });*/
-
-    /*  onClick('spin-to-rome', function() {
-        // Rotation animation takes the shortest arc, so animate in two parts
-        var center = view.getCenter();
-        view.animate({
-          center: [
-            center[0] + (rome[0] - center[0]) / 2,
-            center[1] + (rome[1] - center[1]) / 2
-          ],
-          rotation: Math.PI,
-          easing: easeIn
-        }, {
-          center: rome,
-          rotation: 2 * Math.PI,
-          easing: easeOut
-        });
-      });*/
 
       function flyTo(location, done) {
+
         var duration = 2000;
         var zoom = view.getZoom();
         var parts = 2;
         var called = false;
         function callback(complete) {
-          --parts;
+          parts--;
           if (called) {
             return;
           }
@@ -170,10 +148,10 @@ var points = {
           duration: duration
         }, callback);
         view.animate({
-          zoom: zoom - 3,
+          zoom: 10.8,
           duration: duration / 2
         }, {
-          zoom: zoom ,
+          zoom: 14.7 ,
           duration: duration / 2
         }, callback);
       }
@@ -181,45 +159,31 @@ var points = {
 	  //dropdown list event
 	  var city=document.getElementById('city-select');
 	  
-	 /* function cityChange() {
-		  var cityname=city.value;
-		  if(cityname=="eryaman"){
-			  alert(cityname);
-				onClick('fly-to-eryaman',function() {
-					flyTo(eryaman,function(){});
-				});
-		  }
-		  else if(cityname=="sincan") {
-			  alert(cityname);
-				onClick('sincan',function() {
-					flyTo(sincan,function(){});
-				});
-		  }
-	  }*/
-	  
 	  city.addEventListener('change',function(event){
-		  console.log(event.target.value);
+		  flyTo(points[event.target.value], function() { });
 	  });
-	 
 	  
 	  onClick('fly-to-eryaman',function() {
-		  flyTo(points[event.target.value],window.alert("eryaman"));
+		  flyTo(points.eryaman, function() { });
 	  });
 
 	  onClick('fly-to-sincan',function() {
-		  flyTo(points[event.target.value],window.alert ("sincan"));
+		  flyTo(points.sincan, function() { });
 	  });
 
       function tour() {
-	  var locations = [points[0], points[1]];
         var index = -1;
         function next(more) {
           if (more) {
             ++index;
-            if (index < locations.length) {
-              var delay = index === 0 ? 0 : 750;
+			window.alert(Object.keys(points).length);
+            if (index < Object.keys(points).length) {
+			  if(index===0)
+				  var delay=0;
+			  else 
+				  var delay=750;
               setTimeout(function() {
-                flyTo(locations[index], next);
+                flyTo(Object.keys(points)[index], next);
               }, delay);
             } else {
               alert('Tour complete');
